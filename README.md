@@ -5,10 +5,8 @@
 
 - [2.微信最新资源？](http://mp.weixin.qq.com/s/2sJe5moqkRCnkk1S-N_KMg)
 
-- [ ] 支持国产动漫
+- [支持国产动漫](http://img5.duitang.com/uploads/item/201607/31/20160731085759_aCKQZ.jpeg) 
 
- ![支持](http://img5.duitang.com/uploads/item/201607/31/20160731085759_aCKQZ.jpeg)
- 
  - [骗你上当的苍老师](http://m.2828dy.com/aaa/19.html)
 
  - [Kali 系统]()
