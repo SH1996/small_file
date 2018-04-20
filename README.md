@@ -10,3 +10,5 @@
  - [4.骗你上当的苍老师](http://m.2828dy.com/aaa/19.html)
 
  - [5.Kali 系统]()
+
+ - [6.Linux-opeartions](./linux.md)
