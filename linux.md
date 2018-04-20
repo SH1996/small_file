@@ -31,7 +31,11 @@
     8.
     9.
 
+12.stat 文件 ------   （类似ll）查看文件信息
 
+13.文件operations系列chapter：
+
+- [Linux_file_operations系列chapter](./Linux_file_operations.md)
 
 
 
