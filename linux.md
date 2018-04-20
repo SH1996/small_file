@@ -37,5 +37,5 @@
 
 - [Linux_file_operations系列chapter](./Linux_file_operations.md)
 
-
+- [14.linux系统版本之间的一些差异](https://www.cnblogs.com/garinzhang/p/diff_between_yum_apt-get_in_linux.html)
 
