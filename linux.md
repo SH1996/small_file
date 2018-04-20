@@ -15,7 +15,7 @@
 
 8.env  -----   environment系统环境信息
 
-9.sudo hostname 新主机名  ---------- sudo用于添加root权限，前提是添加sudo操作
+9.sudo hostname 新主机名  ---------- sudo用于添加root权限，前提是添加sudo操作文件
 
 10.linux下区分大小写
 
