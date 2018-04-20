@@ -39,3 +39,16 @@
 
 - [14.linux系统版本之间的一些差异](https://www.cnblogs.com/garinzhang/p/diff_between_yum_apt-get_in_linux.html)
 
+14.创建用户，切换，修改用户的地方的使用：
+
+  1.adduser SH_username    ,    su SH_username     ---------创建用户然后切换
+  2.chown -R SH_username 文件路径   ----------修改文件的拥有者，还有一些其他chown操作权限
+  3.stat 文件路径     ----------可以查看
+
+
+
+
+
+
+
+
