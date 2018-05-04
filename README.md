@@ -12,3 +12,5 @@
  - [5.Kali 系统]()
 
  - [6.Linux-opeartions](./linux.md)
+ 
+ - [7.struts2实例书籍](http://shop.oreilly.com/product/9780596007713.do)
