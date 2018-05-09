@@ -14,3 +14,9 @@
  - [6.Linux-opeartions](./linux.md)
  
  - [7.struts2实例书籍](http://shop.oreilly.com/product/9780596007713.do)
+ 
+ - [8.我看番](https://ikanfan.cn)
+ 
+ - [9.kawaii](https://kawaiian.tv)
+ 
+ - [10.程序员小书（有一定的病毒）](http://www.java2s.com)
