@@ -20,3 +20,19 @@
  - [9.kawaii](https://kawaiian.tv)
  
  - [10.程序员小书（有一定的病毒）](http://www.java2s.com)
+
+ - [11.给你心境安静的网站](http://www.rainymood.com)
+ 
+ - [12.黑客高手网站](http://geektyper.com)
+ 
+ - [13.什么司法公关？](http://zhixing.court.gov.cn/search/)
+ 
+ - [14.真的无聊](http://fakeupdate.net)
+ 
+ - [15.免费办理太空户籍](https://asgardia.space/en/)
+ 
+ - [16.快搜](http://search.chongbuluo.com)
+
+ - [17.绘画](https://www.pixiv.net)
+ 
+ - [18.UI中国](http://www.ui.cn)
