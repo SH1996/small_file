@@ -1,0 +1,21 @@
+团队博客
+	腾讯前端团队（http://www.alloyteam.com）
+	百度Fex（http://fex.baidu.com）
+各大名站
+	火狐MDN社区（https://developer.mozilla.org/zh-CN/docs/Web）
+	w3cplus(https://www.w3cplus.com)
+	png在线压缩（https://tinypng.com）
+	淘宝矢量字库（http://www.iconfont.cn）
+	求字体（http://www.qiuziti.com）
+	caniuse（https://caniuse.com）
+	apistore（http://apistore.baidu.com）
+	百度cdn（http://cdn.code.baidu.com）
+	bootstrap中文网（http://www.bootcss.com）
+	webhek（http://www.webhek.com）
+	开源中国在线工具（http://tool.oschina.net）
+个人博客
+	杨青(http://www.yangqq.com)
+	Aaron(http://www.haorooms.com)
+	阮一峰（http://www.ruanyifeng.com/blog/）
+	爱思资源网（http://www.aseoe.com）		
+	前端观察（https://www.qianduan.net）
