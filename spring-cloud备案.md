@@ -699,7 +699,7 @@ public class IndexController {
 5.读取配置中心的application.yml
 ```
   application:
-    ####注册中心应用名称
+    ####注册中心应用名称（特别注意：这个服务别名，对应了git服务器配置文件的前置名称-dev.properties，一一对应的关系）
     name:  config-client
   cloud:
     config:
