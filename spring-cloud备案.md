@@ -574,8 +574,158 @@ public class SpringcloudEurekaZuulApplication {
 略（具体使用，具体配置）
 ```
 -配置中心
+1.pom.xml
 ```
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.dingpengfei</groupId>
+  <artifactId>spud-eureks-client-config</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>pofe</name>
+  <description>spud</description>
+  
+  <parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.1.RELEASE</version>
+	</parent>
+	<!-- 管理依赖 -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Finchley.M7</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<!-- actuator监控中心 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--spring-cloud 整合 config-server -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+		</dependency>
+		<!-- SpringBoot整合eureka客户端 -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		
+	</dependencies>
+	<!-- 注意： 这里必须要添加， 否者各种依赖有问题 -->
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/libs-milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+</project>
+```
+2.applicatiom.yml
+```
+###服务注册到eureka地址
+eureka:
+  client:
+    service-url:
+           defaultZone: http://localhost:8100/eureka
+spring:
+  application:
+    ####注册中心应用名称
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          ###git环境地址
+          uri: https://git.dev.tencent.com/SH_appearance/IntegratedBlogProject.git 
+          ####搜索目录
+          search-paths:
+            - config  
+          password:  
+          username: 
+      ####读取分支      
+      label: master
+####端口号      
+server:
+  port: 8888
+```
+3.APP.class
+```
+package pofe;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.config.server.EnableConfigServer;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+@EnableEurekaClient
+@EnableConfigServer
+public class EurekaConfigApp {
+
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(EurekaConfigApp.class, args);
+	}
+
+}
+
+```
+4.读取配置文件(config-client)
+```
+@RestController
+public class IndexController {
+	@Value("${name}")
+	private String name;
+
+	@RequestMapping("/name")
+	private String name() {
+		return name;
+	}
+
+}
+
+```
+5.读取配置中心的application.yml
+```
+  application:
+    ####注册中心应用名称
+    name:  config-client
+  cloud:
+    config:
+    ####读取后缀
+      profile: dev
+      ####读取config-server注册地址
+      discovery:
+        service-id: config-server
+        enabled: true
+#####    eureka服务注册地址    
+eureka:
+  client:
+    service-url:
+           defaultZone: http://localhost:8100/eureka    
+server:
+  port: 8882
+### post请求（手动刷新）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+```
+6.手动刷新（发送post请求）更改后的刷新!
+```
+http://127.0.0.1:8882/actuator/refresh 
 ```
 -security（eclipse环境代码）
 1.pom.xml
@@ -880,5 +1030,55 @@ public class AdminController {
 ```
 
 =======================以上至此，微服务环境搭建完成====================
+# 修改以上bug版本：（使用eclise导入）
+```
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.dingpengfei</groupId>
+  <artifactId>spud-eureka-server</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>pofe</name>
+  <description>spud	</description>
+  
+  <parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.1.RELEASE</version>
+	</parent>
+	<!-- 管理依赖 -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Finchley.M7</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<!--SpringCloud eureka-server -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+	</dependencies>
+	<!-- 注意： 这里必须要添加， 否者各种依赖有问题 -->
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/libs-milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+</project>
+```
     
 =======================下面细节实现各个服务的分类======================
+
+=======================以上如果有任何问题，可能是导包不正确==============
