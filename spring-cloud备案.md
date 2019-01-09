@@ -556,10 +556,12 @@ package pofe;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.zuul.EnableZuulServer;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
 @SpringBootApplication
-@EnableZuulServer
+@EnableZuulProxy
+@EnableEurekaClient
 public class SpringcloudEurekaZuulApplication {
 
 	public static void main(String[] args) {
@@ -1093,3 +1095,543 @@ public class AdminController {
 ===
 
 =======================下面细节实现各个服务的分类======================
+
+-springboot整合mybatis（druid+mysql+mapperTk插件+http请求格式）
+1.首先上传代码：
+-pom.xml
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.1.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.dingpengfei</groupId>
+	<artifactId>blog-eureka-cli-liuyan</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>client-liuyan</name>
+	<description>Demo project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud.version>Greenwich.RC2</spring-cloud.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.cloud</groupId>-->
+			<!--<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>-->
+		<!--</dependency>-->
+		<!--druid连接池-->
+		<dependency>
+			<groupId>tk.mybatis</groupId>
+			<artifactId>mapper-spring-boot-starter</artifactId>
+			<version>2.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper</artifactId>
+			<version>4.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>1.0.25</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
+	</repositories>
+
+</project>
+
+```
+-application.yml
+```
+### app端口号
+server:
+  port: 8001
+  ### 配置所有路径请求形式
+  servlet:
+    path: /
+
+spring:
+  ### 配置文件选择(dev，pro)
+  profiles:
+    active: dev
+  application:
+    name: app-liuyan
+  ### 国际化（消息源自动配置,springboot默认找出messages）
+  messages:
+    basename: i18n.messages
+  datasource:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://121.196.219.130:3306/pofe?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+      username: root
+      password: 920104
+#      type: com.alibaba.druid.pool.DruidDataSource
+  #连接池的配置信息
+  ## 初始化大小，最小，最大
+  druid:
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+  ## 配置获取连接等待超时的时间
+    maxWait: 60000
+  # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+  # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+  # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,wall,log4j
+  # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties:
+      druid:
+        stat:
+          mergeSql: true;
+    stat:
+      slowSqlMillis: 5000
+
+### 配置eureka服务
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8100/eureka,http://localhost:8200/eureka,http://localhost:8300/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+#security:
+#  basic:
+#    enabled: false
+#  management:
+#    security:
+#      enabled: false
+
+#mybatis:
+#  #  mapper文件
+#  mapper-locations: pofe/mapper/Mapper.xml
+#  #  实体类
+#  type-aliases-package: pofe.pojo
+
+### log日志
+logging:
+  level:
+    pofe: debug
+    org.springframework: debug
+
+```
+-controller
+```
+package pofe.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import pofe.entity.LiuyanObject;
+import pofe.service.LiuyanService;
+
+import java.util.List;
+
+/**
+ * @author a1
+ */
+@RestController
+public class LiuyanController {
+
+    @Autowired
+    LiuyanService liuyanService;
+
+    /**
+     * 获取留言（web遍历LiuyanObject对象的list集合）
+     */
+    @GetMapping("getLiuyan")
+    public List<LiuyanObject> getLiuyan() {
+        return liuyanService.getLiuyan();
+    }
+
+    /**
+     * 添加留言（web发送LiuyanObject对象的json字符串数据）
+     */
+    @PostMapping("addLiuyan")
+    public String addLiuyan(LiuyanObject obj) {
+        try{
+            liuyanService.addLiuyan(obj);
+        }catch (Exception e){
+            return "添加数据失败 -- 原因不详 -- 联系站长";
+        }
+            return " - success - 200";
+    }
+
+    /**
+     * 分页测试
+     */
+    @RequestMapping("itemsPage")//?currentPage='{currentPage}'&pageSize='{pageSize}'
+    public List<LiuyanObject> itemsPage(int currentPage,int pageSize){
+        return liuyanService.findItemByPage(currentPage, pageSize);
+
+    }
+    /**
+     * test请求路径
+     */
+    @RequestMapping("itemsPages/{currentPage}/{pageSize}")//?currentPage='{currentPage}'&pageSize='{pageSize}'
+    public List<LiuyanObject> itemsPages(@PathVariable int currentPage,@PathVariable int pageSize){
+        return liuyanService.findItemByPage(currentPage, pageSize);
+
+    }
+
+}
+
+```
+-service
+```
+package pofe.service;
+
+import com.github.pagehelper.PageHelper;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import pofe.dao.LiuyanDao;
+import pofe.entity.LiuyanObject;
+import pofe.utils.PageBean;
+
+import java.util.List;
+
+/**
+ * @Author:pofe
+ * @Description:XXX
+ * @Date:2019-01-09
+ *
+ * @以下代码debug清单:
+ *      1.XXX
+ *      2.XXX
+ */
+@Service
+@Slf4j
+public class LiuyanService {
+
+    @Autowired
+    LiuyanDao liuyanDao;
+
+    /**
+     * 查询获取所有留言内容
+     */
+    public List<LiuyanObject> getLiuyan() {
+        return liuyanDao.getLiuyan();
+    }
+
+    /**
+     * 添加一条留言信息
+     */
+    public void addLiuyan(LiuyanObject object){
+        String code = object.getCode();
+        String author = object.getAuthor();
+        String email = object.getEmail();
+        String url = object.getUrl();
+        String msg = object.getMsg();
+        String time = object.getTime();
+        log.info(time);
+        LiuyanObject o1 = new LiuyanObject(code,author,email,url,msg,time);
+        liuyanDao.addLiuyan(o1);
+    }
+    /**
+     * 分页测试
+     */
+    @RequestMapping("/itemsPage?currentPage='{currentPage}'&pageSize='{pageSize}'")
+    public List<LiuyanObject> itemsPage(@PathVariable int currentPage,@PathVariable int pageSize){
+        return findItemByPage(currentPage, pageSize);
+
+    }
+    /**
+     * 分页封装
+     *        reference:
+     *              说明一下下面代码的透明度，首先客户端发送了两个参数（第几页，每页显示多少数据），然后下面代码先启动了分页插件功能，
+     *              这个分页插件会自动根据springboot项目导包整合配置（@Bean）来配置分页插件，分页插件是在数据库调用之前就已经配置好
+     *              相关的分页的，然后使用一个pageBean来装载页面数据，需要根据查询的总数据和全部数据最后，里面注意命名规范问题就可以了。
+     *        so：
+     *          分页插件主要做了一件事情，那就是在查询数据之前对返回的List结果进行数据包装
+     */
+    public List<LiuyanObject> findItemByPage(int currentPage,int pageSize) {
+        //设置分页信息，分别是当前页数和每页显示的总记录数【记住：必须在mapper接口中的方法执行之前设置该分页信息】
+        PageHelper.startPage(currentPage, pageSize);//这个用于客户端指定第几页和每页显示的条数，然后调用原来的查询，就可以返回结果分页了
+        List<LiuyanObject> allItems = liuyanDao.getLiuyan();        //全部商品
+        int countNums = 10;            //总记录数   假设
+        PageBean<LiuyanObject> pageData = new PageBean<>(currentPage, pageSize, countNums);
+        pageData.setItems(allItems);
+        return pageData.getItems();
+    }
+
+}
+
+```
+-dao
+```
+package pofe.dao;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import pofe.entity.LiuyanObject;
+import pofe.mapper.LiuyanMapper;
+
+import java.util.List;
+
+/**
+ * @Author:pofe
+ * @Description:XXX
+ * @Date:2019-01-09
+ *
+ * @以下代码debug清单:
+ *      1.XXX
+ *      2.XXX
+ */
+@Repository
+public class LiuyanDao {
+
+    @Autowired
+    LiuyanMapper liuyanMapper;
+
+    /**
+     * 返回所有留言的List集合
+     */
+    public List<LiuyanObject> getLiuyan(){
+        return liuyanMapper.getAllLiuyanList();
+    }
+
+    /**
+     * 插入一行LiuYan对象
+     */
+    public void addLiuyan(LiuyanObject object){
+        try {
+//            liuyanMapper.addLiuyan(object);
+            liuyanMapper.insert(object);
+        }catch (Exception e){
+            e.getStackTrace();
+        }
+    }
+}
+
+```
+-mapper
+```
+package pofe.mapper;
+
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import pofe.entity.LiuyanObject;
+
+import java.util.List;
+
+/**
+ * @Author:pofe
+ * @Description:XXX
+ * @Date:2019-01-09
+ *
+ * @以下代码debug清单:
+ *      1.XXX
+ *      2.XXX
+ */
+@Mapper
+public interface LiuyanMapper extends tk.mybatis.mapper.common.Mapper<LiuyanObject> {
+
+    @Select("select * from LiuyanTable")
+    List<LiuyanObject> getAllLiuyanList();
+
+    @Insert("insert into LiuyanTable(code,author,email,url,msg,time) values('#{obj.code}','#{obj.author}','#{obj.email}','#{obj.url}','#{obj.msg}','#{obj.time}')")
+    void addLiuyan(LiuyanObject obj);
+
+}
+
+```
+-entity
+```
+package pofe.entity;
+
+import lombok.Data;
+
+import javax.persistence.Table;
+import java.io.Serializable;
+/**
+ * @Author:pofe
+ * @Description:XXX
+ * @Date:2019-01-09
+ *
+ * @以下代码debug清单:
+ *      1.XXX
+ *      2.XXX
+ */
+@Data
+@Table(name = "LiuyanTable")
+public class LiuyanObject implements Serializable {
+
+    private String code;
+    private String author;
+    private String email;
+    private String url;
+    private String msg;
+    private String time;
+    /**
+     * 全参数构造函数
+     */
+    public LiuyanObject(String code, String author, String email, String url, String msg, String time) {
+        this.code = code;
+        this.author = author;
+        this.email = email;
+        this.url = url;
+        this.msg = msg;
+        this.time = time;
+    }
+}
+
+```
+-filter
+```
+package pofe.filter;
+
+import org.springframework.stereotype.Component;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+/**
+ * @Author:pofe
+ * @Description:
+ *          这个允许跨域过滤器只能对普通方法有效，对security框架无效
+ * @Date:2019-01-09
+ *
+ * @以下代码debug清单:
+ *      1.XXX
+ *      2.XXX
+ */
+
+@Component
+public class OriginFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletResponse response = (HttpServletResponse) res;
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE,PUT");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+        chain.doFilter(req, res);
+
+    }
+
+    @Override
+    public void destroy() {
+        // TODO Auto-generated method stub
+
+    }
+
+}
+
+```
+-appStart
+```
+package pofe;
+
+import com.github.pagehelper.PageHelper;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.util.Properties;
+//import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+//@EnableEurekaClient
+public class ClientLiuyanApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ClientLiuyanApplication.class, args);
+	}
+
+	//配置mybatis的分页插件pageHelper
+	@Bean
+	public PageHelper pageHelper(){
+		PageHelper pageHelper = new PageHelper();
+		Properties properties = new Properties();
+		properties.setProperty("offsetAsPageNum","true");
+		properties.setProperty("rowBoundsWithCount","true");
+		properties.setProperty("reasonable","true");
+		properties.setProperty("dialect","mysql");    //配置mysql数据库的方言
+		pageHelper.setProperties(properties);
+		return pageHelper;
+	}
+}
+
+```
+#### 对于上面这个mybatis衍生的无产品项目总结几点：
+1.mybatis的mapper类依赖注入dao中，添加@mapper，继承mapper-mybatis插件，dao中直接接口调用方法，其中mybatis配置之前需要保证java对象和数据库对象名称一致性问题，可以xml，可以java+注解，但是xml需要更多的配置，指定q看后文件关系就可以了，代码中都有痕迹。
+2.PageHeper插件，这个看上面代码，springboot整合这个插件，这个插件帮助我们简化的事情就是在查询语句之前进行分页规则，其中需要传递参数，然后将对应查询数据返回到指定的bean对象之中，对后客户端指定怎样的数据分页，就返回怎么的数据分页。
+3.关于springboot的请求格式，这里有一些规定：springboot需要配置来区分是rest请求风格还是其它eg：*.do,所以这个需要在application.yml中配置。
+4.关于数据库连接池，使用druid就可以了，看上面代码，如果错误更换低一点的版本，ok👌！
